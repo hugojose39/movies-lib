@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 import { AiFillLike } from "react-icons/ai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const imageURL = import.meta.env.VITE_IMG;
 
@@ -10,14 +10,31 @@ const MovieCard = ({ movie, showLink = true }) => {
 
     const handleLikeClick = () => {
         const updatedLiked = !liked;
+
         setLiked(updatedLiked);
         const likedMovie = {
             ...movie,
             liked: updatedLiked
         };
 
-        sessionStorage.setItem(movie.id.toString(), JSON.stringify(likedMovie));
+        if(updatedLiked) {
+            return sessionStorage.setItem(movie.id.toString(), JSON.stringify(likedMovie));
+        }
+
+        return sessionStorage.removeItem(movie.id.toString());
     };
+
+    useEffect(() => {
+        const likedMoviesData = Object.keys(sessionStorage).map((key) => {
+            return JSON.parse(sessionStorage.getItem(key));
+        });
+
+        likedMoviesData.map((storage) => {
+            if (storage.id === movie.id) {
+                setLiked(storage.liked);
+            }
+        });
+    }, []);
 
     return (
         <div className="movie-card">
